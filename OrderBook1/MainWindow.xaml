@@ -20,7 +20,7 @@
             </ToolBar>
             <Grid x:Name="ContentGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto">
                 <TabControl x:Name="ContentTabCtrl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto">
-                    <TabItem Name="OrdersTabItm" Header="Objednávky" IsSelected="True">
+                    <TabItem Name="OrdersTabItm" Header="Objednávky" IsSelected="False" GotFocus="OrdersTabItm_GotFocus" >
                         <DataGrid x:Name="OrdersDtg" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"
                                   Margin="5,5,5,5"
                                   FontSize="20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
@@ -85,7 +85,7 @@
                             
                         </DataGrid>
                     </TabItem>
-                    <TabItem x:Name="SetOrderTabItm" Header="Nová Objednávka" GotFocus="SetOrderTabItm_GotFocus" LostFocus="SetOrderTabItm_LostFocus" >
+                    <TabItem x:Name="SetOrderTabItm" Header="Nová Objednávka" IsSelected="True" GotFocus="SetOrderTabItm_GotFocus" LostFocus="SetOrderTabItm_LostFocus" >
                         <Grid x:Name="ObjednavkaGrd" Background="#ffffff">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -109,17 +109,24 @@
                                         <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3">Uložiť obj.</Button>
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"
-                                         AutoWordSelection="True"
-                                             FontSize="20" />
+                                         AutoWordSelection="True" FontSize="20" PreviewKeyDown="OrdRTxb_PreviewKeyDown" >
+                                        <RichTextBox.Resources>
+                                            <Style TargetType="{x:Type Paragraph}">
+                                                <Setter Property="Margin" Value="20,1,1,1" />
+                                            </Style>
+                                        </RichTextBox.Resources>
+                                    </RichTextBox>
                                 </Grid>
 
                                 <StackPanel x:Name="OrdRightStp" Grid.Column="1" Background="Aqua" Orientation="Vertical">
                                     <StackPanel x:Name="ClientStp" Orientation="Horizontal">
-                                        <Button x:Name="ClientBtn" Height="25" Width="75" MaxWidth="170" Margin="13,50,23,3" HorizontalAlignment="Left">Zákazník</Button>
+                                        <Button x:Name="ClientBtn" Height="25" Width="75" MaxWidth="170" Margin="13,50,23,3" HorizontalAlignment="Left" Click="ClientBtn_Click"
+                                               >Zákazník</Button>
                                         <ComboBox x:Name="ClientsCmx" Margin="3,50,3,3" Width="105" Height="25"
-                                              ItemsSource="{Binding Clients.MyClients}" 
+                                              
                                               IsSynchronizedWithCurrentItem="True"
-                                              SelectedIndex="{Binding Clients.CurrentClientId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
+                                            SelectedIndex="{Binding vm.CurrentClient.ListId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" SelectionChanged="ClientsCmx_SelectionChanged" >
+
 
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate>
@@ -134,7 +141,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="Zákazník" Width="75" Margin="13,3,23,3" />
                                         <TextBox x:Name="ClientTb" Width="150" Margin="3" Text="{Binding CurrentOrder.ClientName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right"></TextBox>
+                                             HorizontalAlignment="Right" TextAlignment="Left" VerticalAlignment="Center"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="OrdNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Názov</Button>
@@ -174,20 +181,33 @@
                                         <TextBox x:Name="TotalPriceTb" Width="150" Margin="3" 
                                              Text="{Binding CurrentOrder.TotalPrice, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></TextBox>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 30,5,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label x:Name="CurrencyLb" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Mena</Label>
+                                        <ComboBox x:Name="CurrencyTb" Width="40" Margin="3" 
+                                             >
+                                            <ComboBoxItem Content="€" IsSelected="True"></ComboBoxItem>
+                                            <ComboBoxItem Content="USD"></ComboBoxItem>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
                                         <Label x:Name="CompletedLb">Kompletná</Label>
                                         <CheckBox x:Name="CompletedChb" VerticalAlignment="Center" IsChecked="{Binding CurrentOrder.Completed, 
                                         UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label x:Name="TitleOrdPathLb">Priložená objednávka:</Label>
-                                        <CheckBox x:Name="OrdPathChb" VerticalAlignment="Center" IsChecked="{Binding CurrentOrder.IsOrderFilePath, 
+                                        <Label x:Name="UrgentLb">Urgentná:</Label>
+                                        <CheckBox x:Name="UrgentChb" VerticalAlignment="Center" IsChecked="{Binding CurrentOrder.IsOrderFilePath, 
                                         UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
                                     </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
+                                        <Button x:Name="OrderPathBtn" Content="Priložiť Objednávku"></Button>
+                                        
+                                    </StackPanel>
                                 </StackPanel>
-
+                                
                             </Grid>
-                            
+                            <TextBox x:Name="Console" Grid.Row="2" HorizontalAlignment="Stretch" Width="Auto" VerticalAlignment="Stretch" Height="Auto"
+                                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto">Log</TextBox>
 
 
                                 
