@@ -24,5 +24,18 @@ namespace OrderBook1
         {
             InitializeComponent();
         }
+              
+
+        
+
+        private void SetOrderTabItm_GotFocus(object sender, RoutedEventArgs e)
+        {
+            MainWnd.Width = 1280;
+        }
+
+        private void SetOrderTabItm_LostFocus(object sender, RoutedEventArgs e)
+        {
+            MainWnd.Width = 850;
+        }
     }
 }

@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OrderBook1"
         mc:Ignorable="d"
-        Title="Zákazky" Height="850" Width="1280">
+        Title="Zákazky" Height="850" Width="850"
+        x:Name="MainWnd">
     <Grid>
         <Grid x:Name="MainGrd">
             <Grid.RowDefinitions>
@@ -19,7 +20,7 @@
             </ToolBar>
             <Grid x:Name="ContentGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto">
                 <TabControl x:Name="ContentTabCtrl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto">
-                    <TabItem Name="OrdersTabItm" Header="Objednávky">
+                    <TabItem Name="OrdersTabItm" Header="Objednávky" IsSelected="True">
                         <DataGrid x:Name="OrdersDtg" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"
                                   Margin="5,5,5,5"
                                   FontSize="20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
@@ -41,20 +42,16 @@
                                 <DataGridTemplateColumn Header="Urgentná" MinWidth="20" Width="Auto" MaxWidth="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="linkRBtn" Checked="LinkRBtn_Checked" Unchecked="LinkRBtn_Unchecked" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                                            </CheckBox>
+                                            <CheckBox x:Name="UrgChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Header="Hotové" MinWidth="20" Width="Auto" MaxWidth="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="linkRBtn" Checked="LinkRBtn_Checked" Unchecked="LinkRBtn_Unchecked" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                                            </CheckBox>
+                                            <CheckBox x:Name="DoneChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -70,10 +67,8 @@
                                 <DataGridTemplateColumn Header="Odobrať" MinWidth="20" Width="Auto" MaxWidth="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <CheckBox x:Name="linkRBtn" Checked="LinkRBtn_Checked" Unchecked="LinkRBtn_Unchecked" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center">
-
-                                            </CheckBox>
+                                            <CheckBox x:Name="UnselectChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -90,11 +85,11 @@
                             
                         </DataGrid>
                     </TabItem>
-                    <TabItem x:Name="SetOrderTabItm" Header="Nová Objednávka">
+                    <TabItem x:Name="SetOrderTabItm" Header="Nová Objednávka" GotFocus="SetOrderTabItm_GotFocus" LostFocus="SetOrderTabItm_LostFocus" >
                         <Grid x:Name="ObjednavkaGrd" Background="#ffffff">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
                             <Grid x:Name="OrdInnerGrd">
                                 <Grid.ColumnDefinitions>
@@ -109,22 +104,22 @@
                                     <StackPanel x:Name="OrdUptStp" Grid.Row="0" Background="Aqua" Orientation="Horizontal">
                                         <Button x:Name="NewOrdBtn" Height="30" Padding="5" Margin="3">Nová objednávka</Button>
                                         <Button x:Name="AddBulkOrdBtn" Height="30" Padding="5" Margin="3">Nová hromadne</Button>
-                                        <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" Click="AddOrdFileBtn_Click" >Pridať súbor s obj.</Button>
-                                        <Button x:Name="AddOrdPathBtn" Height="30" Padding="5" Margin="3" Click="AddOrdPathBtn_Click" >Pridať cestu k obj.</Button>
+                                        <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" >Pridať súbor s obj.</Button>
+                                        <Button x:Name="AddOrdPathBtn" Height="30" Padding="5" Margin="3" >Pridať cestu k obj.</Button>
                                         <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3">Uložiť obj.</Button>
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"
-                                         AutoWordSelection="True" PreviewMouseLeftButtonUp="objTxb_PreviewMouseLeftButtonUp"
-                                             FontSize="20" PreviewKeyDown="objRTxb_PreviewKeyDown" PreviewKeyUp="objRTxb_PreviewKeyUp" ></RichTextBox>
+                                         AutoWordSelection="True"
+                                             FontSize="20" />
                                 </Grid>
 
                                 <StackPanel x:Name="OrdRightStp" Grid.Column="1" Background="Aqua" Orientation="Vertical">
                                     <StackPanel x:Name="ClientStp" Orientation="Horizontal">
-                                        <Button x:Name="ClientBtn" Height="25" Width="75" MaxWidth="170" Margin="13,50,23,3" HorizontalAlignment="Left" Click="ClientBtn_Click">Zákazník</Button>
+                                        <Button x:Name="ClientBtn" Height="25" Width="75" MaxWidth="170" Margin="13,50,23,3" HorizontalAlignment="Left">Zákazník</Button>
                                         <ComboBox x:Name="ClientsCmx" Margin="3,50,3,3" Width="105" Height="25"
                                               ItemsSource="{Binding Clients.MyClients}" 
                                               IsSynchronizedWithCurrentItem="True"
-                                              SelectedIndex="{Binding Clients.CurrentClientId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" SelectionChanged="ClientsCmx_SelectionChanged">
+                                              SelectedIndex="{Binding Clients.CurrentClientId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
 
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate>
@@ -192,59 +187,10 @@
                                 </StackPanel>
 
                             </Grid>
-                            <StackPanel x:Name="OrdForm" Grid.Row="1" Orientation="Horizontal" Width="Auto">
-                                <StackPanel Orientation="Vertical">
-                                    <StackPanel Orientation="Horizontal" Margin="5, 30,5,0">
-                                        <Label>Zákazník</Label>
-                                                                              
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label>Názov</Label>
-                                        
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label>Č. obj.</Label>
-                                        
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label>Termín</Label>
-                                        
-                                    </StackPanel>
-                                </StackPanel>
+                            
 
 
-                                <StackPanel Orientation="Vertical">
-                                    <StackPanel Orientation="Horizontal" Margin="5, 30,5,0">
-                                        <Label>Nové slová</Label>
-                                        
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label>Nové slová</Label>
-                                        
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label>Meno PM</Label>
-                                        
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Label>Priezvisko PM</Label>
-                                        
-                                    </StackPanel>
-
-
-
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    <StackPanel Orientation="Horizontal" Margin="5, 30,5,0">
-                                        <Label x:Name="TotalPriceLb">Celková cena</Label>
-                                        
-                                    </StackPanel>
-                                </StackPanel>
-                                <StackPanel Orientation="Vertical">
-                                    
-                                </StackPanel>
-                            </StackPanel>
-
+                                
                         </Grid>
                     </TabItem>
                 </TabControl>
