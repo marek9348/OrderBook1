@@ -20,6 +20,7 @@ namespace OrderBook1
         private string _orderFilePath = "";
         private bool _isUrgent = false;
         private bool _completed = false;
+        private string _status = "new";
 
         public int Id { get; set; }
         public string Num {
@@ -148,6 +149,18 @@ namespace OrderBook1
                 // Call OnPropertyChanged whenever the property is updated
                 //Parameter must by string "..."
                 OnPropertyChanged("IsUrgent");
+            }
+        }
+
+        public string Status
+        {
+            get { return _status; }
+            set
+            {
+                _status = value;
+                // Call OnPropertyChanged whenever the property is updated
+                //Parameter must by string "..."
+                OnPropertyChanged("Status");
             }
         }
 

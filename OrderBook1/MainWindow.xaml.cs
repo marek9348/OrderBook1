@@ -48,7 +48,7 @@ namespace OrderBook1
 
         private void OrdersTabItm_GotFocus(object sender, RoutedEventArgs e)
         {
-            MainWnd.Width = 850;
+            MainWnd.Width = 1050;
         }
 
         private void OrdRTxb_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -75,7 +75,9 @@ namespace OrderBook1
             vm.AddClient(vm.CurrentOrder.ClientName);
             vm.CurrentClient = vm.Clients.Last();
             ClientsCmx.SelectedIndex = vm.CurrentClient.ListId;
-            Console.AppendText(vm.CurrentClient.ListId.ToString());
+            Console.AppendText(": " + vm.CurrentClient.ListId.ToString()+" # ");
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            //OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
 
         }
 
@@ -83,6 +85,97 @@ namespace OrderBook1
         {
             vm.CurrentClient = vm.SetCurrentClient(ClientsCmx.SelectedIndex);
             vm.CurrentOrder.ClientName = vm.CurrentClient.Name;
+        }       
+
+        private void OrdNameBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.Name = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.Name + " # ");
+        }
+
+        private void OrdNumBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.Num = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.Num + " # ");
+        }
+
+        private void OrdDeadlineBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.Deadline = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.Deadline + " # ");
+        }
+
+        private void OrdWordcountBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.WordCount = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.WordCount + " # ");
+        }
+
+        private void OrdRawWordcountBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.QtNs = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.QtNs + " # ");
+        }
+
+        private void MngNameBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.PMName = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.PMName + " # ");
+        }
+
+        private void MngLastNameBtn_Click(object sender, RoutedEventArgs e)
+        {
+            vm.CurrentOrder.PMLastName = OrdRTxb.Selection.Text.Trim();
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.PMLastName + " # ");
+        }
+
+        private void TotalPriceBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string input = OrdRTxb.Selection.Text.Trim();
+            input = input.Replace('.', ',');
+            //Console.AppendText("Replaced: " + input + " # ");
+            try { vm.CurrentOrder.TotalPrice = Convert.ToDouble(input); }
+            catch(FormatException)
+            {
+                MessageBox.Show("Neplatný formát." + Environment.NewLine + "Zadajte cenu ručne.");
+            }
+
+
+            OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            Console.AppendText(vm.CurrentOrder.TotalPrice.ToString() + " # ");
+        }
+
+        private void AddOrdBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Console.AppendText("Počet: " + vm.Orders.Count.ToString() + " # ");
+            vm.Orders.Add(vm.CurrentOrder);
+            Console.AppendText(vm.Orders[0].Name + " # ");
+            Console.AppendText(vm.Orders.Count.ToString() + " # ");
+            Console.AppendText("Počet2: " + vm.Orders.Count.ToString() + " # ");
+            //Reset source for orders dtg
+            OrdersDtg.ItemsSource = "";
+            OrdersDtg.ItemsSource = vm.Orders;
+            Console.AppendText("CurrOrder: " + vm.CurrentOrder.Name + " # ");
+            DbMng dbmng = new DbMng();
+            dbmng.SaveOrder(vm.CurrentOrder);
+
+        }
+
+        private void MainWnd_Loaded(object sender, RoutedEventArgs e)
+        {
+            DbMng dbmng = new DbMng();
+            vm.Orders = dbmng.ReadAllOrders();
+            Console.AppendText("Loaded: " + vm.Orders.Count.ToString() + " # ");
+            //Reset source for orders dtg
+            OrdersDtg.ItemsSource = "";
+            OrdersDtg.ItemsSource = vm.Orders;
         }
     }
 }

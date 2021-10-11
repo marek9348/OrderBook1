@@ -35,7 +35,8 @@ namespace OrderBook1.Migrations
                     PMLastName = table.Column<string>(type: "TEXT", nullable: true),
                     TotalPrice = table.Column<double>(type: "REAL", nullable: false),
                     ClientId = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientId1 = table.Column<int>(type: "INTEGER", nullable: true)
+                    ClientId1 = table.Column<int>(type: "INTEGER", nullable: true),
+                    Completed = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {

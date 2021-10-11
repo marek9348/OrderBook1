@@ -1,21 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace OrderBook1
 {
-    public class ViewModel
+    public class ViewModel : INotifyPropertyChanged
     {
-        public List<Order> Orders { get; set; }
+        private List<Order> _orders = new List<Order>();
+        public List<Order> Orders {
+            get { return _orders; }
+            set
+            {
+                _orders = value;
+                // Call OnPropertyChanged whenever the property is updated
+                //Parameter must by string "..."
+                OnPropertyChanged("Orders");
+            }
+        }
         public List<Client> Clients { get; set; }
         //Current order to show -> for beginning should be blank order
         public Order CurrentOrder { get; set; }
         //Current client to bind to combo
         public Client CurrentClient { get; set; }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyname)
+        {
+            //throw new NotImplementedException();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
+            //MessageBox.Show("Changed to " + this.Client);
+        }
+
         public ViewModel()
         {
-            Orders = new List<Order>();
+            //Orders = new List<Order>();
             Clients = new List<Client>();
             CurrentOrder = new Order();
             CurrentClient = new Client();
@@ -66,5 +86,7 @@ namespace OrderBook1
 
             return result;
         }
+
+        
     }
 }

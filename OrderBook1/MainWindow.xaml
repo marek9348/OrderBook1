@@ -5,16 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OrderBook1"
         mc:Ignorable="d"
-        Title="Zákazky" Height="850" Width="850"
-        x:Name="MainWnd">
+        Title="Zákazky" Height="850" Width="1050"
+        x:Name="MainWnd" Loaded="MainWnd_Loaded">
     <Grid>
-        <Grid x:Name="MainGrd">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="643*"/>
+            <ColumnDefinition Width="407*"/>
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="MainGrd" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            
+
             <ToolBar Name="MainTlb" Grid.Row="0" HorizontalAlignment="Stretch" Width="Auto">
                 <Menu x:Name="MainMenu">Súbor</Menu>
             </ToolBar>
@@ -25,7 +29,7 @@
                                   Margin="5,5,5,5"
                                   FontSize="20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                                   AutoGenerateColumns="False" SelectionUnit="FullRow" ScrollViewer.CanContentScroll="True"
-                                  SelectionMode="Single" CanUserAddRows="False" ItemsSource="{Binding MyRows}" AlternatingRowBackground="AntiqueWhite">
+                                  SelectionMode="Single" CanUserAddRows="False" ItemsSource="{Binding vm.Orders}" AlternatingRowBackground="AntiqueWhite">
                             <DataGrid.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="DarkSeaGreen"/>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#aacce8"/>
@@ -34,11 +38,30 @@
                                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="Black"/>
                             </DataGrid.Resources>
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=TwoWay}" Width="Auto"/>
-                                <DataGridTextColumn Header="Objednávka" Binding="{Binding PO, Mode=TwoWay}" Width="Auto"/>
-                                <DataGridTextColumn Header="Termín" Binding="{Binding PO, Mode=TwoWay}" Width="Auto"/>
-                                <DataGridTextColumn Header="Cena" Binding="{Binding PO, Mode=TwoWay}" Width="Auto"/>
-                                <DataGridTextColumn Header="Množstvo" Binding="{Binding PO, Mode=TwoWay}" Width="Auto"/>
+                                <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>                                
+                                <DataGridTemplateColumn Header="Zákazník" MinWidth="20" Width="Auto" MaxWidth="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox x:Name="ClientTxb" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                     Text="{Binding ClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     BorderThickness="0" Background="{Binding Background, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
+                                                     />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Objednávka" MinWidth="20" Width="Auto" MaxWidth="150">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox x:Name="OrderTxb" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                     Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     BorderThickness="0" Background="{Binding Background, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                
+                                <DataGridTextColumn Header="Termín" Binding="{Binding Deadline, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
+                                <DataGridTextColumn Header="Cena" Binding="{Binding TotalPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
+                                <DataGridTextColumn Header="Množstvo" Binding="{Binding WordCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
                                 <DataGridTemplateColumn Header="Urgentná" MinWidth="20" Width="Auto" MaxWidth="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -75,14 +98,14 @@
                                 <DataGridTemplateColumn Header="Vymazať" MinWidth="40" Width="Auto" MaxWidth="100">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button x:Name="EditBtn" HorizontalAlignment="Center" VerticalAlignment="Center">Upraviť
+                                            <Button x:Name="EditBtn" HorizontalAlignment="Center" VerticalAlignment="Center">Vymazať
 
                                             </Button>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
-                            
+
                         </DataGrid>
                     </TabItem>
                     <TabItem x:Name="SetOrderTabItm" Header="Nová Objednávka" IsSelected="True" GotFocus="SetOrderTabItm_GotFocus" LostFocus="SetOrderTabItm_LostFocus" >
@@ -106,7 +129,7 @@
                                         <Button x:Name="AddBulkOrdBtn" Height="30" Padding="5" Margin="3">Nová hromadne</Button>
                                         <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" >Pridať súbor s obj.</Button>
                                         <Button x:Name="AddOrdPathBtn" Height="30" Padding="5" Margin="3" >Pridať cestu k obj.</Button>
-                                        <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3">Uložiť obj.</Button>
+                                        <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3" Click="AddOrdBtn_Click" >Uložiť obj.</Button>
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"
                                          AutoWordSelection="True" FontSize="20" PreviewKeyDown="OrdRTxb_PreviewKeyDown" >
@@ -141,49 +164,54 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="Zákazník" Width="75" Margin="13,3,23,3" />
                                         <TextBox x:Name="ClientTb" Width="150" Margin="3" Text="{Binding CurrentOrder.ClientName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right" TextAlignment="Left" VerticalAlignment="Center"></TextBox>
+                                             HorizontalAlignment="Right" TextAlignment="Left" VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="OrdNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Názov</Button>
-                                        <TextBox x:Name="OrderNameTb" Width="150" Margin="3" Text="{Binding CurrentOrder.ProjectName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right"></TextBox>
+                                        <Button x:Name="OrdNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdNameBtn_Click"
+                                                >Názov</Button>
+                                        <TextBox x:Name="OrderNameTb" Width="150" Margin="3" Text="{Binding CurrentOrder.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="OrdNumBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Č. obj.</Button>
+                                        <Button x:Name="OrdNumBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdNumBtn_Click" >Č. obj.</Button>
                                         <TextBox x:Name="ProjNumTb" Width="150" Margin="3" 
-                                             Text="{Binding CurrentOrder.ProjectNumber, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></TextBox>
+                                             Text="{Binding CurrentOrder.Num, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="OrdDeadlineBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" >Termín</Button>
-                                        <TextBox x:Name="DeadlineTb" Width="150" Margin="3"  Text="{Binding CurrentOrder.Deadline, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></TextBox>
+                                        <Button x:Name="OrdDeadlineBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdDeadlineBtn_Click" >Termín</Button>
+                                        <TextBox x:Name="DeadlineTb" Width="150" Margin="3"  Text="{Binding CurrentOrder.Deadline, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 VerticalContentAlignment="Center" ></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="OrdWordcountBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" >Slová</Button>
-                                        <TextBox x:Name="WordCountTb" Width="150" Margin="3" Text="{Binding CurrentOrder.Wordcount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></TextBox>
+                                        <Button x:Name="OrdWordcountBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdWordcountBtn_Click" >Slová</Button>
+                                        <TextBox x:Name="WordCountTb" Width="150" Margin="3" Text="{Binding CurrentOrder.WordCount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="OrdRawWordcountBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Množstvo NS</Button>
-                                        <TextBox x:Name="NSCountTb" Width="150" Margin="3" Text="{Binding CurrentOrder.RawWordcount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right"></TextBox>                                        
+                                        <Button x:Name="OrdRawWordcountBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdRawWordcountBtn_Click" >Množstvo NS</Button>
+                                        <TextBox x:Name="NSCountTb" Width="150" Margin="3" Text="{Binding CurrentOrder.QtNs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="MngNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Meno PM</Button>
-                                        <TextBox x:Name="PMNameTb" Width="150" Margin="3" Text="{Binding CurrentOrder.ProjectManagername, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right"></TextBox>
+                                        <Button x:Name="MngNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="MngNameBtn_Click" >Meno PM</Button>
+                                        <TextBox x:Name="PMNameTb" Width="150" Margin="3" Text="{Binding CurrentOrder.PMName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="MngLastNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Priezvisko PM</Button>
+                                        <Button x:Name="MngLastNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="MngLastNameBtn_Click" >Priezvisko PM</Button>
                                         <TextBox x:Name="PMLastnameTb" Width="150" Margin="3" 
-                                             Text="{Binding CurrentOrder.ProjectManagerLastname, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></TextBox>
+                                             Text="{Binding CurrentOrder.PMLastName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button x:Name="TotalPriceBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Celková cena</Button>
+                                        <Button x:Name="TotalPriceBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="TotalPriceBtn_Click" >Celková cena</Button>
                                         <TextBox x:Name="TotalPriceTb" Width="150" Margin="3" 
-                                             Text="{Binding CurrentOrder.TotalPrice, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></TextBox>
+                                             Text="{Binding CurrentOrder.TotalPrice, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                 VerticalContentAlignment="Center" Height="22"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Label x:Name="CurrencyLb" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Mena</Label>
-                                        <ComboBox x:Name="CurrencyTb" Width="40" Margin="3" 
+                                        <ComboBox x:Name="CurrencyTb" Width="60" Margin="3" 
                                              >
                                             <ComboBoxItem Content="€" IsSelected="True"></ComboBoxItem>
                                             <ComboBoxItem Content="USD"></ComboBoxItem>
@@ -201,21 +229,21 @@
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
                                         <Button x:Name="OrderPathBtn" Content="Priložiť Objednávku"></Button>
-                                        
+
                                     </StackPanel>
                                 </StackPanel>
-                                
+
                             </Grid>
                             <TextBox x:Name="Console" Grid.Row="2" HorizontalAlignment="Stretch" Width="Auto" VerticalAlignment="Stretch" Height="Auto"
                                      TextWrapping="Wrap" VerticalScrollBarVisibility="Auto">Log</TextBox>
 
 
-                                
+
                         </Grid>
                     </TabItem>
                 </TabControl>
             </Grid>
-            
+
         </Grid>
 
     </Grid>
