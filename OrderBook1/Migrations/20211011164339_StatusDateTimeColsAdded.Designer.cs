@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OrderBook1;
 
 namespace OrderBook1.Migrations
 {
     [DbContext(typeof(OrderBookContext))]
-    partial class OrderBookContextModelSnapshot : ModelSnapshot
+    [Migration("20211011164339_StatusDateTimeColsAdded")]
+    partial class StatusDateTimeColsAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,9 +49,6 @@ namespace OrderBook1.Migrations
 
                     b.Property<bool>("Completed")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Currency")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Deadline")
                         .HasColumnType("TEXT");

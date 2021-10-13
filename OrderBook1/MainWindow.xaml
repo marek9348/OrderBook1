@@ -6,115 +6,159 @@
         xmlns:local="clr-namespace:OrderBook1"
         mc:Ignorable="d"
         Title="Zákazky" Height="850" Width="1050"
-        x:Name="MainWnd" Loaded="MainWnd_Loaded">
+        x:Name="MainWnd" Loaded="MainWnd_Loaded" Closing="MainWnd_Closing" >
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="643*"/>
-            <ColumnDefinition Width="407*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <Grid x:Name="MainGrd" Grid.ColumnSpan="2">
+        <Grid x:Name="MainGrd">
             <Grid.RowDefinitions>
                 <RowDefinition Height="30"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
 
             <ToolBar Name="MainTlb" Grid.Row="0" HorizontalAlignment="Stretch" Width="Auto">
                 <Menu x:Name="MainMenu">Súbor</Menu>
+                <Button x:Name="NewOrderBtn" Click="NewOrderBtn_Click" >Nová objednávka</Button>
+                <Button x:Name="EditOrderBtn" Click="EditOrderBtn_Click" >Upraviť objednávku</Button>
             </ToolBar>
             <Grid x:Name="ContentGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto">
                 <TabControl x:Name="ContentTabCtrl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto">
                     <TabItem Name="OrdersTabItm" Header="Objednávky" IsSelected="False" GotFocus="OrdersTabItm_GotFocus" >
-                        <DataGrid x:Name="OrdersDtg" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"
+                        <Grid x:Name="OrdersInnerGrd">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="100"/>
+                            </Grid.RowDefinitions>
+                            <DataGrid x:Name="OrdersDtg" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto"
                                   Margin="5,5,5,5"
                                   FontSize="20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                                   AutoGenerateColumns="False" SelectionUnit="FullRow" ScrollViewer.CanContentScroll="True"
-                                  SelectionMode="Single" CanUserAddRows="False" ItemsSource="{Binding vm.Orders}" AlternatingRowBackground="AntiqueWhite">
-                            <DataGrid.Resources>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="DarkSeaGreen"/>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#aacce8"/>
+                                  SelectionMode="Single" CanUserAddRows="False" SelectionChanged="OrdersDtg_SelectionChanged"  >
+                                <DataGrid.Resources>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="DarkSeaGreen"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#aacce8"/>
 
-                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
-                                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="Black"/>
-                            </DataGrid.Resources>
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>                                
-                                <DataGridTemplateColumn Header="Zákazník" MinWidth="20" Width="Auto" MaxWidth="150">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBox x:Name="ClientTxb" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black"/>
+                                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="Black"/>
+                                </DataGrid.Resources>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="New">
+                                                <Setter Property="Background" Value="Orange"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Sent">
+                                                <Setter Property="Background" Value="Yellow"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Urg">
+                                                <Setter Property="Background" Value="Red"></Setter>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Book">
+                                                <Setter Property="Background" Value="AliceBlue"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
+                                    <DataGridTemplateColumn Header="Zákazník" MinWidth="20" Width="Auto" MaxWidth="150">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox x:Name="ClientTxb" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"
                                                      Text="{Binding ClientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      BorderThickness="0" Background="{Binding Background, RelativeSource={RelativeSource Mode=TemplatedParent}}" 
                                                      />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Objednávka" MinWidth="20" Width="Auto" MaxWidth="150">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBox x:Name="OrderTxb" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Objednávka" MinWidth="20" Width="Auto" MaxWidth="150">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox x:Name="OrderTxb" HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"
                                                      Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      BorderThickness="0" Background="{Binding Background, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                
-                                <DataGridTextColumn Header="Termín" Binding="{Binding Deadline, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
-                                <DataGridTextColumn Header="Cena" Binding="{Binding TotalPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
-                                <DataGridTextColumn Header="Množstvo" Binding="{Binding WordCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
-                                <DataGridTemplateColumn Header="Urgentná" MinWidth="20" Width="Auto" MaxWidth="100">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox x:Name="UrgChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Hotové" MinWidth="20" Width="Auto" MaxWidth="100">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox x:Name="DoneChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Upraviť" MinWidth="40" Width="Auto" MaxWidth="100">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button x:Name="EditBtn" HorizontalAlignment="Center" VerticalAlignment="Center">Upraviť
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
 
-                                            </Button>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Odobrať" MinWidth="20" Width="Auto" MaxWidth="100">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox x:Name="UnselectChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    <DataGridTextColumn Header="Termín" Binding="{Binding Deadline, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Cena" Binding="{Binding TotalPrice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
+                                    <DataGridTextColumn Header="Množstvo" Binding="{Binding WordCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="Auto"/>
+                                    <DataGridTemplateColumn Header="Status" MinWidth="20" Width="Auto" MaxWidth="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button x:Name="StatusBtn" Content="{Binding Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center" Width="70" MinHeight="25" Click="StatusBtn_Click" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTemplateColumn Header="Upraviť" MinWidth="40" Width="Auto" MaxWidth="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button x:Name="EditBtn" HorizontalAlignment="Center" VerticalAlignment="Center" Click="EditBtn_Click" >Upraviť
+
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Odobrať" MinWidth="20" Width="Auto" MaxWidth="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <CheckBox x:Name="UnselectChxb" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Vymazať" MinWidth="40" Width="Auto" MaxWidth="100">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Button x:Name="EditBtn" HorizontalAlignment="Center" VerticalAlignment="Center">Vymazať
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Vymazať" MinWidth="40" Width="Auto" MaxWidth="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button x:Name="EditBtn" HorizontalAlignment="Center" VerticalAlignment="Center">Vymazať
 
-                                            </Button>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
+                                                </Button>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
 
-                        </DataGrid>
+                            </DataGrid>
+                            <StackPanel x:Name="InfoPanelTbx" Grid.Row="1" Margin="5,0,5,5" Orientation="Vertical" >
+                                <StackPanel>
+                                    <Label Padding="0" Content="Detail objednávky: "></Label></StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Vertical">                                        
+                                        <StackPanel Orientation="Horizontal" >
+                                            <Label Padding="0">Dátum vytvorenia:</Label>
+                                            <Label Padding="0" Content="{Binding CurrentSelectedOrder.OrdDateTime, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" >
+                                            <Label Padding="0">Cesta k pdf:</Label>
+                                            <Label Padding="0" Content="{Binding CurrentSelectedOrder.OrderFilePath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                                        </StackPanel>
+                                    </StackPanel></StackPanel>
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Padding="0" Content="Info: "></Label>
+                                        <Label x:Name="InfoLb" Padding="0" ></Label>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
                     </TabItem>
                     <TabItem x:Name="SetOrderTabItm" Header="Nová Objednávka" IsSelected="True" GotFocus="SetOrderTabItm_GotFocus" LostFocus="SetOrderTabItm_LostFocus" >
                         <Grid x:Name="ObjednavkaGrd" Background="#ffffff">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="59*"/>
+                                <ColumnDefinition Width="985*"/>
+                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
-                            <Grid x:Name="OrdInnerGrd">
+                            <Grid x:Name="OrdInnerGrd" Grid.ColumnSpan="2">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="280"/>
@@ -125,11 +169,12 @@
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
                                     <StackPanel x:Name="OrdUptStp" Grid.Row="0" Background="Aqua" Orientation="Horizontal">
-                                        <Button x:Name="NewOrdBtn" Height="30" Padding="5" Margin="3">Nová objednávka</Button>
+                                        <Button x:Name="NewOrdBtn" Height="30" Padding="5" Margin="3" Click="NewOrdBtn_Click" >Nová objednávka</Button>
                                         <Button x:Name="AddBulkOrdBtn" Height="30" Padding="5" Margin="3">Nová hromadne</Button>
-                                        <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" >Pridať súbor s obj.</Button>
+                                        <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" Click="AddOrdFileBtn_Click" >Pridať súbor s obj.</Button>
                                         <Button x:Name="AddOrdPathBtn" Height="30" Padding="5" Margin="3" >Pridať cestu k obj.</Button>
                                         <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3" Click="AddOrdBtn_Click" >Uložiť obj.</Button>
+                                        <Button x:Name="SaveEditedOrdBtn" Height="30" Padding="5" Margin="3" Click="SaveEditedOrdBtn_Click" >Uložiť zmeny</Button>
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"
                                          AutoWordSelection="True" FontSize="20" PreviewKeyDown="OrdRTxb_PreviewKeyDown" >
@@ -224,24 +269,25 @@
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
                                         <Label x:Name="UrgentLb">Urgentná:</Label>
-                                        <CheckBox x:Name="UrgentChb" VerticalAlignment="Center" IsChecked="{Binding CurrentOrder.IsOrderFilePath, 
-                                        UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"></CheckBox>
+                                        <CheckBox x:Name="UrgentChb" VerticalAlignment="Center" IsChecked="{Binding CurrentOrder.IsUrgent, 
+                                        UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Checked="UrgentChb_Checked" ></CheckBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Button x:Name="OrderPathBtn" Content="Priložiť Objednávku"></Button>
+                                        <Button x:Name="OrderPathBtn" Content="Priložiť Pdf Objednávku" Click="OrderPathBtn_Click" ></Button>
 
                                     </StackPanel>
                                 </StackPanel>
 
                             </Grid>
-                            <TextBox x:Name="Console" Grid.Row="2" HorizontalAlignment="Stretch" Width="Auto" VerticalAlignment="Stretch" Height="Auto"
-                                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto">Log</TextBox>
+                            <TextBox x:Name="Console" Width="Auto" Height="Auto"
+                                     TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="0,696,0,0" Grid.RowSpan="2">Log</TextBox>
 
 
 
                         </Grid>
                     </TabItem>
                 </TabControl>
+
             </Grid>
 
         </Grid>

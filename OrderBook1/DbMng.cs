@@ -33,5 +33,25 @@ namespace OrderBook1
             }
 
         }
+
+        public void UpdateOrder(Order order)
+        {
+            using (var db = new OrderBookContext())
+            {
+                db.Update(order);
+                db.SaveChanges();
+            }
+        }
+
+        public void SaveUpdates(List<Order> orders)
+        {
+            foreach(Order ord in orders)
+            {
+                if(ord.Modified == true)
+                {
+                    UpdateOrder(ord);
+                }
+            }
+        }
     }
 }

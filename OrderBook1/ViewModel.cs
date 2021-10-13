@@ -7,6 +7,10 @@ namespace OrderBook1
 {
     public class ViewModel : INotifyPropertyChanged
     {
+        //Current new order or edited order
+        private Order _currentOrder = new Order();
+        //Current order selected in datagrid
+        private Order _currentSelectedOrder = new Order();
         private List<Order> _orders = new List<Order>();
         public List<Order> Orders {
             get { return _orders; }
@@ -19,8 +23,24 @@ namespace OrderBook1
             }
         }
         public List<Client> Clients { get; set; }
-        //Current order to show -> for beginning should be blank order
-        public Order CurrentOrder { get; set; }
+        //Current order to show in richtextbox for edit-> for beginning should be blank order
+        public Order CurrentOrder {
+            get { return _currentOrder; }
+            set
+            {
+                _currentOrder = value;
+                OnPropertyChanged("CurrentOrder");
+            }
+        }
+
+        public Order CurrentSelectedOrder
+        {
+            get { return _currentSelectedOrder; }
+            set { 
+                _currentSelectedOrder = value;
+                OnPropertyChanged("CurrentSelectedOrder");
+                    }
+        }
         //Current client to bind to combo
         public Client CurrentClient { get; set; }
 
@@ -85,6 +105,14 @@ namespace OrderBook1
             }
 
             return result;
+        }
+        public List<Order> SetModified(List<Order> orders)
+        {
+            foreach(Order ord in orders)
+            {
+                ord.Modified = false;
+            }
+            return orders;
         }
 
         

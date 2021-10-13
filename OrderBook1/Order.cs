@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace OrderBook1
@@ -20,9 +21,33 @@ namespace OrderBook1
         private string _orderFilePath = "";
         private bool _isUrgent = false;
         private bool _completed = false;
-        private string _status = "new";
-
+        private string _status = "New";
+        private DateTime _ordDateTime = DateTime.Now;
+        private bool _modified = false;
+        private string _currency = "€";
+        //Properties
         public int Id { get; set; }
+        //Track unsaved modifications
+        [NotMapped]
+        public bool Modified
+        {
+            get { return _modified; }
+            set { _modified = value;
+                OnPropertyChanged("Modified");
+            }
+        }
+        //Date and time of creation
+        public DateTime OrdDateTime
+        {
+            get { return _ordDateTime; }
+            set
+            {
+                _ordDateTime = value;
+                // Call OnPropertyChanged whenever the property is updated
+                //Parameter must by string "..."
+                OnPropertyChanged("OrdDateTime");
+            }
+        }                
         public string Num {
             get { return _num; }
             set
@@ -115,6 +140,15 @@ namespace OrderBook1
                 OnPropertyChanged("TotalPrice");
             }
         }
+        public string Currency
+        {
+            get { return _currency; }
+            set
+            {
+                _currency = value;
+                OnPropertyChanged("Currency");
+            }
+        }
 
         public string OrderFilePath
         {
@@ -178,5 +212,29 @@ namespace OrderBook1
             //MessageBox.Show("Changed to " + this.Client);
         }
 
+        //Constructor
+        public Order()
+        {                        
+            OrdDateTime = DateTime.Now;
+        }
+
+        public void SetStatus()
+        {
+            if(Status == "New")
+            {
+                Status = "Urg";
+            }
+            else if(Status == "Urg")
+            {
+                Status = "Sent";
+            }
+            else
+            {
+                Status = "New";
+            }
+        }
+
     }
+
 }
+
