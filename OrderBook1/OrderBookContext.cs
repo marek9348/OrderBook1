@@ -25,6 +25,16 @@ namespace OrderBook1
             // special "local" folder for your platform.
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite($"Data Source={DbPath}");
-    
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Client>()
+                .HasIndex(u => u.Name)
+                .IsUnique();
+            builder.Entity<Client>()
+                .HasIndex(u => u.CompareName)
+                .IsUnique();
+        }
+
     }
 }

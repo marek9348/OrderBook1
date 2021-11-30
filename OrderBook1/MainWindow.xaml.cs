@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,16 +22,29 @@ namespace OrderBook1
     public partial class MainWindow : Window
     {
         //Set viewmodel
-        ViewModel vm = new ViewModel();
+        private readonly ViewModel vm = new ViewModel();
+        private readonly AppCounter apc = new AppCounter();
         public MainWindow()
         {
             InitializeComponent();
             //Set datacontext
             DataContext = vm;
+            //Reads orders from DB
+            DbMng dbmng = new DbMng();
+            vm.Orders = dbmng.ReadAllOrders();
+            //Set modified to false -> no changes
+            vm.Orders = vm.SetModified(vm.Orders);
+            //Reverse the order of Orders
+            vm.Orders = vm.ReverseOrders(vm.Orders);
+            //Read clients from db
+            vm.Clients = dbmng.ReadAllClients();
             //Clients for clients cmbox binding itemssource
             ClientsCmx.ItemsSource = vm.Clients;
             //And for orders dtg
             OrdersDtg.ItemsSource = vm.Orders;
+            string dateTime = DateTime.Now.ToString();
+            //OrdRTxb.AppendText(dateTime);
+
         }
               
 
@@ -63,6 +77,8 @@ namespace OrderBook1
 
         private void OrdRTxb_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            apc.IsOrderEdited = true;
+            SaveEditedOrdBtn.Background = Brushes.Orange;
             //Remove text formatting from clipboard 
             if ((e.Key == Key.V) && Keyboard.Modifiers == ModifierKeys.Control)
             {
@@ -76,6 +92,17 @@ namespace OrderBook1
                     plainText = txmng.RemoveSecondNewLine(plainText); //plainText.Replace("\r\n", " ==== ");
                     Clipboard.SetText(plainText);
                 }
+
+                SearchInText srchText = new SearchInText();
+                //Gets text from rtbx
+                //string rtbText = srchText.GetTextFromRtbx(OrdRTxb);
+                
+                //Searches for client in text
+                vm.CurrentClient = srchText.SearchClient(vm.Clients, Clipboard.GetText());
+                Console.Clear();
+                Console.AppendText($"{ vm.CurrentClient.Name} id: {vm.CurrentClient.ListId}");
+                ClientTb.Text = vm.CurrentClient.Name;
+                ClientsCmx.SelectedIndex = vm.CurrentClient.ListId;
             }
         }
 
@@ -88,6 +115,9 @@ namespace OrderBook1
             Console.AppendText(": " + vm.CurrentClient.ListId.ToString()+" # ");
             OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
             //OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
+            DbMng dbmng = new DbMng();
+            dbmng.AddClient(vm.CurrentOrder.ClientName, Console);
+            dbmng.ReadAllClients();
 
         }
 
@@ -95,6 +125,11 @@ namespace OrderBook1
         {
             vm.CurrentClient = vm.SetCurrentClient(ClientsCmx.SelectedIndex);
             vm.CurrentOrder.ClientName = vm.CurrentClient.Name;
+            Console.Clear();
+            Console.AppendText($"Selected index {ClientsCmx.SelectedIndex} ");
+            Console.AppendText($"Selected clientId {vm.CurrentClient.ListId} ");
+            Console.AppendText($"Client name fromorder: {vm.CurrentOrder.ClientName} ");
+            //ClientTb.Text = vm.CurrentClient.Name;
         }       
 
         private void OrdNameBtn_Click(object sender, RoutedEventArgs e)
@@ -170,29 +205,42 @@ namespace OrderBook1
             Console.AppendText(vm.Orders[0].Name + " # ");
             Console.AppendText(vm.Orders.Count.ToString() + " # ");
             Console.AppendText("Počet2: " + vm.Orders.Count.ToString() + " # ");
+            
+            Console.AppendText("CurrOrder: " + vm.CurrentOrder.Name + " # ");
+            DbMng dbmng = new DbMng();
+            try
+            {
+                dbmng.SaveOrder(vm.CurrentOrder);
+            }
+            catch
+            {
+                Console.Clear();
+                Console.AppendText("Už bolo uložené, pomocou tlačidla 'Uložiť zmeny'");
+            }
+            //Reads orders from DB            
+            vm.Orders = dbmng.ReadAllOrders();
+            //Reverse the order of Orders
+            vm.Orders = vm.ReverseOrders(vm.Orders);
             //Reset source for orders dtg
             OrdersDtg.ItemsSource = "";
             OrdersDtg.ItemsSource = vm.Orders;
-            Console.AppendText("CurrOrder: " + vm.CurrentOrder.Name + " # ");
-            DbMng dbmng = new DbMng();
-            dbmng.SaveOrder(vm.CurrentOrder);
+
             //Changes were saved
             vm.CurrentOrder.Modified = false;
+            //Order was saved
+            apc.IsOrderEdited = false;
+            SaveEditedOrdBtn.Background = Brushes.LightGray;
 
         }
 
         private void MainWnd_Loaded(object sender, RoutedEventArgs e)
         {
-            DbMng dbmng = new DbMng();
-            vm.Orders = dbmng.ReadAllOrders();
-            //Set modified to false -> no changes
-            vm.Orders = vm.SetModified(vm.Orders);
-            //Reverse the order of Orders
-            vm.Orders.Reverse();
-            Console.AppendText("Loaded: " + vm.Orders.Count.ToString() + " # ");
+            
+            //vm.Orders = new ObservableCollection<Order>(vm.Orders.OrderBy(i => i));
+            InfoLb.Content = "Loaded: " + vm.Orders.Count.ToString() + " # ";
             //Reset source for orders dtg
-            OrdersDtg.ItemsSource = "";
-            OrdersDtg.ItemsSource = vm.Orders;
+            //OrdersDtg.ItemsSource = "";
+            //OrdersDtg.ItemsSource = vm.Orders;
         }
 
         private void StatusBtn_Click(object sender, RoutedEventArgs e)
@@ -235,29 +283,134 @@ namespace OrderBook1
             vm.CurrentOrder.OrderFilePath = fmng.CurrentFilePath;
             //Add text to rtbx
             tmng.AddText(OrdRTxb);
-            //No more changes
-            vm.CurrentOrder.Modified = false;
+            //There are changes??
+            vm.CurrentOrder.Modified = true;
+            //Order was not saved??
+            apc.IsOrderEdited = true;
         }
 
         private void NewOrdBtn_Click(object sender, RoutedEventArgs e)
         {
             //Button in SetOrderTab
-            //Alert about saving new order!!! ToDo
-            vm.CurrentOrder = new Order();
-            vm.CurrentOrder.Modified = true;
-            TextMng tmng = new TextMng();
-            tmng.Clear(OrdRTxb);
+            if(apc.IsOrderEdited == true)
+            {
+                //Alert to save edited order
+                MessageBoxResult result = MessageBox.Show("Objednávka bola zmenená.\n\nChcete ju uložiť?", "Pozor!", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        if(vm.CurrentOrder.Id < 0)
+                        {                            
+                            //Saves order to db and add to collection
+                            DbMng dbmng = new DbMng();
+                            dbmng.SaveOrder(vm.CurrentOrder);
+                            vm.Orders.Add(vm.CurrentOrder);
+                            vm.CurrentOrder = new Order();
+                            vm.CurrentOrder.Modified = true;
+                            TextMng yesTmng = new TextMng();
+                            yesTmng.Clear(OrdRTxb);
+                            //Sets IsInDb to true -> is saved to db                            
+                            //No more changes
+                            vm.CurrentOrder.Modified = false;
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+                        else
+                        {
+                            //Updates edited order
+                            DbMng dbmng = new DbMng();
+                            dbmng.UpdateOrder(vm.CurrentOrder);
+                            vm.CurrentOrder = new Order();
+                            vm.CurrentOrder.Modified = true;
+                            TextMng elseTmng = new TextMng();
+                            elseTmng.Clear(OrdRTxb);
+                            //No more changes
+                            vm.CurrentOrder.Modified = false;
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+                        
+                        break;
+                    case MessageBoxResult.No:
+                        vm.CurrentOrder = new Order();
+                        vm.CurrentOrder.Modified = true;
+                        TextMng tmng = new TextMng();
+                        tmng.Clear(OrdRTxb);
+                        apc.IsOrderEdited = false;
+                        SaveEditedOrdBtn.Background = Brushes.Gray;
+                        break;
+                }
+            }
+            else
+            {
+                vm.CurrentOrder = new Order();
+                vm.CurrentOrder.Modified = true;
+                TextMng tmng = new TextMng();
+                tmng.Clear(OrdRTxb);
+                apc.IsOrderEdited = false;
+                SaveEditedOrdBtn.Background = Brushes.Gray;
+            }
+            
 
         }
 
         private void NewOrderBtn_Click(object sender, RoutedEventArgs e)
         {
             //Button on menu bar
-            //Alert about saving new order!!! ToDo
-            vm.CurrentOrder = new Order();
-            vm.CurrentOrder.Modified = true;
-            TextMng tmng = new TextMng();
-            tmng.Clear(OrdRTxb);
+            if (apc.IsOrderEdited == true)
+            {
+                //Alert to save edited order
+                MessageBoxResult result = MessageBox.Show("Objednávka bola zmenená.\n\nChcete ju uložiť?", "Pozor!", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        if (vm.CurrentOrder.Id < 0)
+                        {
+                            //Saves order to db and add to collection
+                            DbMng dbmng = new DbMng();
+                            dbmng.SaveOrder(vm.CurrentOrder);
+                            vm.Orders.Add(vm.CurrentOrder);
+                            //Sets IsInDb to true -> is saved to db                            
+                            //No more changes
+                            vm.CurrentOrder.Modified = false;
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+                        else
+                        {
+                            //Updates edited order
+                            DbMng dbmng = new DbMng();
+                            dbmng.UpdateOrder(vm.CurrentOrder);
+                            //No more changes
+                            vm.CurrentOrder.Modified = false;
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+
+                        break;
+                    case MessageBoxResult.No:
+                        vm.CurrentOrder = new Order();
+                        vm.CurrentOrder.Modified = true;
+                        //Clear the richtextbox
+                        TextMng tmng = new TextMng();
+                        tmng.Clear(OrdRTxb);
+                        apc.IsOrderEdited = false;
+                        SaveEditedOrdBtn.Background = Brushes.Gray;
+                        break;
+                    
+                }
+            }
+            else
+            {
+                vm.CurrentOrder = new Order();
+                vm.CurrentOrder.Modified = true;
+                TextMng tmng = new TextMng();
+                tmng.Clear(OrdRTxb);
+                apc.IsOrderEdited = false;
+                SaveEditedOrdBtn.Background = Brushes.Gray;
+            }
+
+
 
         }
 
@@ -265,18 +418,117 @@ namespace OrderBook1
         {
             SetOrderTabItm.Focus();
             //If nothing is processing yet???
-            //If is selected an Order
-            vm.CurrentOrder = vm.CurrentSelectedOrder;
-            //Changed
-            vm.CurrentOrder.Modified = true;
-            //Reade attached pdf order if exists
-            if (vm.CurrentOrder.OrderFilePath!= null)
+            if(apc.IsOrderEdited == true)
             {
-                FileMng fmng = new FileMng();
-                try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
-                catch { }
-                
+                //Alert to save edited order
+                MessageBoxResult result = MessageBox.Show("Objednávka bola zmenená.\n\nChcete ju uložiť?", "Pozor!", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        if (vm.CurrentOrder.Id < 0)
+                        {
+                            //Saves order to db and add to collection
+                            DbMng dbmng = new DbMng();
+                            dbmng.SaveOrder(vm.CurrentOrder);
+                            vm.Orders.Add(vm.CurrentOrder);
+                            //Sets IsInDb to true -> is saved to db                            
+                            //No more changes
+                            //vm.CurrentOrder.Modified = false;
+                            //If is selected an Order
+                            vm.CurrentOrder = vm.CurrentSelectedOrder;
+                            //Changed
+                            vm.CurrentOrder.Modified = true;
+                            //apc.IsOrderEdited = true;
+                            //Clear the richtextbox
+                            TextMng yesTmng = new TextMng();
+                            yesTmng.Clear(OrdRTxb);
+                            //Reade attached pdf order if exists
+                            if (vm.CurrentOrder.OrderFilePath != null)
+                            {
+                                FileMng fmng = new FileMng();
+                                try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                                catch { }
+
+                            }
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+                        else
+                        {
+                            //Updates edited order
+                            DbMng dbmng = new DbMng();
+                            dbmng.UpdateOrder(vm.CurrentOrder);
+                            //No more changes
+                            vm.CurrentOrder.Modified = false;
+                            //If is selected an Order
+                            vm.CurrentOrder = vm.CurrentSelectedOrder;
+                            //Changed
+                            vm.CurrentOrder.Modified = true;
+                            //apc.IsOrderEdited = true;
+                            //Clear the richtextbox
+                            TextMng elseTmng = new TextMng();
+                            elseTmng.Clear(OrdRTxb);
+                            //Reade attached pdf order if exists
+                            if (vm.CurrentOrder.OrderFilePath != null)
+                            {
+                                FileMng fmng = new FileMng();
+                                try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                                catch { }
+
+                            }
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+
+                        break;
+                    case MessageBoxResult.No:
+                        //If is selected an Order
+                        vm.CurrentOrder = vm.CurrentSelectedOrder;
+                        //Changed
+                        vm.CurrentOrder.Modified = true;
+                        apc.IsOrderEdited = false;
+                        //Clear the richtextbox
+                        TextMng tmng = new TextMng();
+                        tmng.Clear(OrdRTxb);
+
+                        //Reade attached pdf order if exists
+                        if (vm.CurrentOrder.OrderFilePath != null)
+                        {
+                            FileMng fmng = new FileMng();
+                            try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                            catch { }
+
+                        }
+                        apc.IsOrderEdited = false;
+                        SaveEditedOrdBtn.Background = Brushes.Gray;
+                        break;
+                    
+                }
             }
+            else
+            {
+                //If is selected an Order
+                vm.CurrentOrder = vm.CurrentSelectedOrder;
+                //Changed
+                vm.CurrentOrder.Modified = true;
+                //apc.IsOrderEdited = true;
+                //Clear the richtextbox
+                TextMng tmng = new TextMng();
+                tmng.Clear(OrdRTxb);
+
+                //Reade attached pdf order if exists
+                if (vm.CurrentOrder.OrderFilePath != null)
+                {
+                    FileMng fmng = new FileMng();
+                    try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                    catch { }
+
+                }
+                apc.IsOrderEdited = false;
+                SaveEditedOrdBtn.Background = Brushes.Gray;
+
+            }
+                                    
         }
 
         private void OrderPathBtn_Click(object sender, RoutedEventArgs e)
@@ -289,11 +541,15 @@ namespace OrderBook1
             //Update changes in DB
             DbMng dbmng = new DbMng();
             dbmng.UpdateOrder(vm.CurrentOrder);
+            //Reads orders from DB            
+            vm.Orders = dbmng.ReadAllOrders();
             //No more changes
             vm.CurrentOrder.Modified = false;
             //Reset source for orders dtg
             OrdersDtg.ItemsSource = "";
             OrdersDtg.ItemsSource = vm.Orders;
+            apc.IsOrderEdited = false;
+            SaveEditedOrdBtn.ClearValue(Button.BackgroundProperty);
         }
 
         private void UrgentChb_Checked(object sender, RoutedEventArgs e)
@@ -304,25 +560,154 @@ namespace OrderBook1
         private void EditBtn_Click(object sender, RoutedEventArgs e)
         {
             SetOrderTabItm.Focus();
-            //If nothing is processing yet???
-            //If is selected an Order
-            vm.CurrentOrder = vm.CurrentSelectedOrder;
-            //Changed
-            vm.CurrentOrder.Modified = true;
-            //Reade attached pdf order if exists
-            if (vm.CurrentOrder.OrderFilePath != null)
+            if (apc.IsOrderEdited == true)
             {
-                FileMng fmng = new FileMng();
-                try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
-                catch { }
+                //Alert to save edited order
+                MessageBoxResult result = MessageBox.Show("Objednávka bola zmenená.\n\nChcete ju uložiť?", "Pozor!", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        if (vm.CurrentOrder.Id < 0)
+                        {
+                            //Saves order to db and add to collection
+                            DbMng dbmng = new DbMng();
+                            dbmng.SaveOrder(vm.CurrentOrder);
+                            vm.Orders.Add(vm.CurrentOrder);
+                            //Sets IsInDb to true -> is saved to db                            
+                            //No more changes
+                            //vm.CurrentOrder.Modified = false;
+                            //If is selected an Order
+                            vm.CurrentOrder = vm.CurrentSelectedOrder;
+                            //Changed
+                            vm.CurrentOrder.Modified = true;
+                            //apc.IsOrderEdited = true;
+                            //Clear the richtextbox
+                            TextMng yesTmng = new TextMng();
+                            yesTmng.Clear(OrdRTxb);
+                            //Reade attached pdf order if exists
+                            if (vm.CurrentOrder.OrderFilePath != null)
+                            {
+                                FileMng fmng = new FileMng();
+                                try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                                catch { }
 
+                            }
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+                        else
+                        {
+                            //Updates edited order
+                            DbMng dbmng = new DbMng();
+                            dbmng.UpdateOrder(vm.CurrentOrder);
+                            //No more changes
+                            vm.CurrentOrder.Modified = false;
+                            //If is selected an Order
+                            vm.CurrentOrder = vm.CurrentSelectedOrder;
+                            //Changed
+                            vm.CurrentOrder.Modified = true;
+                            //apc.IsOrderEdited = true;
+                            //Clear the richtextbox
+                            TextMng elseTmng = new TextMng();
+                            elseTmng.Clear(OrdRTxb);
+                            //Reade attached pdf order if exists
+                            if (vm.CurrentOrder.OrderFilePath != null)
+                            {
+                                FileMng fmng = new FileMng();
+                                try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                                catch { }
+
+                            }
+                            apc.IsOrderEdited = false;
+                            SaveEditedOrdBtn.Background = Brushes.Gray;
+                        }
+
+                        break;
+                    case MessageBoxResult.No:
+                        //If is selected an Order
+                        vm.CurrentOrder = vm.CurrentSelectedOrder;
+                        //Changed
+                        vm.CurrentOrder.Modified = true;
+                        //apc.IsOrderEdited = true;
+                        //Clear the richtextbox
+                        TextMng tmng = new TextMng();
+                        tmng.Clear(OrdRTxb);
+                        //Reade attached pdf order if exists
+                        if (vm.CurrentOrder.OrderFilePath != null)
+                        {
+                            FileMng fmng = new FileMng();
+                            try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                            catch { }
+
+                        }
+                        apc.IsOrderEdited = false;
+                        SaveEditedOrdBtn.Background = Brushes.Gray;
+                        break;
+
+                }
+            }
+            else
+            {
+                //If is selected an Order
+                vm.CurrentOrder = vm.CurrentSelectedOrder;
+                //Changed
+                vm.CurrentOrder.Modified = true;
+                //Reade attached pdf order if exists
+                if (vm.CurrentOrder.OrderFilePath != null)
+                {
+                    FileMng fmng = new FileMng();
+                    try { OrdRTxb.AppendText(fmng.ExtractTextFromPdf(vm.CurrentOrder.OrderFilePath)); }
+                    catch { }
+
+                }
+                apc.IsOrderEdited = false;
+                SaveEditedOrdBtn.Background = Brushes.Gray;
             }
         }
 
         private void MainWnd_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             DbMng dbmng = new DbMng();
-            dbmng.SaveUpdates(vm.Orders);
+            if (apc.IsOrderEdited == true && vm.CurrentOrder.Id < 0) //If new edited order
+            {
+                //Alert to save edited order
+                MessageBoxResult result = MessageBox.Show("Objednávka bola zmenená.\n\nChcete ju uložiť?", "Pozor!", MessageBoxButton.YesNo);
+                switch (result)
+                {
+                    case MessageBoxResult.Yes:
+                        if (vm.CurrentOrder.Id < 0)
+                        {
+                            //Saves order to db and add to collection
+                            //DbMng dbmng = new DbMng();
+                            dbmng.SaveOrder(vm.CurrentOrder);
+                            vm.Orders.Add(vm.CurrentOrder);
+                        }
+                        else
+                        {
+                            //Updates edited order
+                            //DbMng dbmng = new DbMng();
+                            dbmng.UpdateOrder(vm.CurrentOrder);
+                        }
+
+                        break;
+                    case MessageBoxResult.No:
+                        
+                        break;
+
+                }
+            }
+            else
+            {
+                dbmng.SaveUpdates(vm.Orders);
+            }
+            
+        }
+
+        private void CurrencyTb_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //SaveEditedOrdBtn.Background = Brushes.Orange;
+            apc.IsOrderEdited = true;
+            
         }
     }
 }

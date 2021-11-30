@@ -36,7 +36,8 @@
                                   Margin="5,5,5,5"
                                   FontSize="20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                                   AutoGenerateColumns="False" SelectionUnit="FullRow" ScrollViewer.CanContentScroll="True"
-                                  SelectionMode="Single" CanUserAddRows="False" SelectionChanged="OrdersDtg_SelectionChanged"  >
+                                  SelectionMode="Single" CanUserAddRows="False" SelectionChanged="OrdersDtg_SelectionChanged"  
+                                      Background="White">
                                 <DataGrid.Resources>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="DarkSeaGreen"/>
                                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#aacce8"/>
@@ -60,6 +61,8 @@
                                                 <Setter Property="Background" Value="AliceBlue"></Setter>
                                             </DataTrigger>
                                         </Style.Triggers>
+                                        <Setter Property="BorderBrush" Value="White"/>
+                                        <Setter Property="BorderThickness" Value="0, 0, 0, 20"/>
                                     </Style>
                                 </DataGrid.RowStyle>
                                 <DataGrid.Columns>
@@ -174,7 +177,7 @@
                                         <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" Click="AddOrdFileBtn_Click" >Pridať súbor s obj.</Button>
                                         <Button x:Name="AddOrdPathBtn" Height="30" Padding="5" Margin="3" >Pridať cestu k obj.</Button>
                                         <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3" Click="AddOrdBtn_Click" >Uložiť obj.</Button>
-                                        <Button x:Name="SaveEditedOrdBtn" Height="30" Padding="5" Margin="3" Click="SaveEditedOrdBtn_Click" >Uložiť zmeny</Button>
+                                        
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"
                                          AutoWordSelection="True" FontSize="20" PreviewKeyDown="OrdRTxb_PreviewKeyDown" >
@@ -192,7 +195,7 @@
                                                >Zákazník</Button>
                                         <ComboBox x:Name="ClientsCmx" Margin="3,50,3,3" Width="105" Height="25"
                                               
-                                              IsSynchronizedWithCurrentItem="True"
+                                              IsSynchronizedWithCurrentItem="True" Text="Vyber klienta"
                                             SelectedIndex="{Binding vm.CurrentClient.ListId, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" SelectionChanged="ClientsCmx_SelectionChanged" >
 
 
@@ -209,18 +212,18 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Label Content="Zákazník" Width="75" Margin="13,3,23,3" />
                                         <TextBox x:Name="ClientTb" Width="150" Margin="3" Text="{Binding CurrentOrder.ClientName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right" TextAlignment="Left" VerticalContentAlignment="Center" Height="22"></TextBox>
+                                             HorizontalAlignment="Right" TextAlignment="Left" VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="OrdNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdNameBtn_Click"
                                                 >Názov</Button>
                                         <TextBox x:Name="OrderNameTb" Width="150" Margin="3" Text="{Binding CurrentOrder.Name, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22"></TextBox>
+                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="OrdNumBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdNumBtn_Click" >Č. obj.</Button>
                                         <TextBox x:Name="ProjNumTb" Width="150" Margin="3" 
-                                             Text="{Binding CurrentOrder.Num, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalContentAlignment="Center" Height="22"></TextBox>
+                                             Text="{Binding CurrentOrder.Num, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="OrdDeadlineBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdDeadlineBtn_Click" >Termín</Button>
@@ -230,33 +233,33 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="OrdWordcountBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdWordcountBtn_Click" >Slová</Button>
                                         <TextBox x:Name="WordCountTb" Width="150" Margin="3" Text="{Binding CurrentOrder.WordCount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 VerticalContentAlignment="Center" Height="22"></TextBox>
+                                                 VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="OrdRawWordcountBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="OrdRawWordcountBtn_Click" >Množstvo NS</Button>
                                         <TextBox x:Name="NSCountTb" Width="150" Margin="3" Text="{Binding CurrentOrder.QtNs, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22"></TextBox>
+                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="MngNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="MngNameBtn_Click" >Meno PM</Button>
                                         <TextBox x:Name="PMNameTb" Width="150" Margin="3" Text="{Binding CurrentOrder.PMName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22"></TextBox>
+                                             HorizontalAlignment="Right" VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="MngLastNameBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="MngLastNameBtn_Click" >Priezvisko PM</Button>
                                         <TextBox x:Name="PMLastnameTb" Width="150" Margin="3" 
                                              Text="{Binding CurrentOrder.PMLastName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 VerticalContentAlignment="Center" Height="22"></TextBox>
+                                                 VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Button x:Name="TotalPriceBtn" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left" Click="TotalPriceBtn_Click" >Celková cena</Button>
                                         <TextBox x:Name="TotalPriceTb" Width="150" Margin="3" 
                                              Text="{Binding CurrentOrder.TotalPrice, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                 VerticalContentAlignment="Center" Height="22"></TextBox>
+                                                 VerticalContentAlignment="Center" Height="22" PreviewKeyDown="OrdRTxb_PreviewKeyDown"></TextBox>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <Label x:Name="CurrencyLb" Height="25" Width="75" MaxWidth="170" Margin="13,3,23,3" HorizontalAlignment="Left">Mena</Label>
-                                        <ComboBox x:Name="CurrencyTb" Width="60" Margin="3" 
+                                        <ComboBox x:Name="CurrencyTb" Width="60" Margin="3" SelectionChanged="CurrencyTb_SelectionChanged" 
                                              >
                                             <ComboBoxItem Content="€" IsSelected="True"></ComboBoxItem>
                                             <ComboBoxItem Content="USD"></ComboBoxItem>
@@ -272,8 +275,9 @@
                                         <CheckBox x:Name="UrgentChb" VerticalAlignment="Center" IsChecked="{Binding CurrentOrder.IsUrgent, 
                                         UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Checked="UrgentChb_Checked" ></CheckBox>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="5, 10,5,0">
-                                        <Button x:Name="OrderPathBtn" Content="Priložiť Pdf Objednávku" Click="OrderPathBtn_Click" ></Button>
+                                    <StackPanel Orientation="Vertical" Margin="5, 10,5,0">
+                                        <Button x:Name="OrderPathBtn" Content="Priložiť Pdf Objednávku" Height="25" Margin="3" Click="OrderPathBtn_Click" ></Button>
+                                        <Button x:Name="SaveEditedOrdBtn" Height="30" Padding="5" Margin="3,50,3,3" Click="SaveEditedOrdBtn_Click" >Uložiť zmeny</Button>
 
                                     </StackPanel>
                                 </StackPanel>

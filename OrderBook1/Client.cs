@@ -10,7 +10,7 @@ namespace OrderBook1
     {
         private int _listId = 500;
         private string _name = "";
-
+        private string _compare_name = "";
         public int Id { get; set; }
         [NotMapped]
         public int ListId {
@@ -31,6 +31,18 @@ namespace OrderBook1
                 // Call OnPropertyChanged whenever the property is updated
                 //Parameter must by string "..."
                 OnPropertyChanged("Name");
+            }
+        }
+        //String to assure no duplicates in db
+        public string CompareName
+        {
+            get { return _compare_name; }
+            set
+            {
+                _compare_name = value;
+                // Call OnPropertyChanged whenever the property is updated
+                //Parameter must by string "..."
+                OnPropertyChanged("CompareName");
             }
         }
 

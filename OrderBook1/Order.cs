@@ -25,6 +25,7 @@ namespace OrderBook1
         private DateTime _ordDateTime = DateTime.Now;
         private bool _modified = false;
         private string _currency = "€";
+        
         //Properties
         public int Id { get; set; }
         //Track unsaved modifications
@@ -36,6 +37,8 @@ namespace OrderBook1
                 OnPropertyChanged("Modified");
             }
         }
+        
+
         //Date and time of creation
         public DateTime OrdDateTime
         {
