@@ -99,8 +99,10 @@ namespace OrderBook1
                 
                 //Searches for client in text
                 vm.CurrentClient = srchText.SearchClient(vm.Clients, Clipboard.GetText());
-                Console.Clear();
-                Console.AppendText($"{ vm.CurrentClient.Name} id: {vm.CurrentClient.ListId}");
+                string regexExpression = srchText.GetRegexExpression("OBJ0073-ac_236");
+                Console.Clear();                
+                //Console.AppendText($"{ vm.CurrentClient.Name} id: {vm.CurrentClient.ListId}");
+                Console.AppendText($"Regex výraz: {regexExpression}");
                 ClientTb.Text = vm.CurrentClient.Name;
                 ClientsCmx.SelectedIndex = vm.CurrentClient.ListId;
             }
@@ -125,10 +127,10 @@ namespace OrderBook1
         {
             vm.CurrentClient = vm.SetCurrentClient(ClientsCmx.SelectedIndex);
             vm.CurrentOrder.ClientName = vm.CurrentClient.Name;
-            Console.Clear();
+            //Console.Clear();
             Console.AppendText($"Selected index {ClientsCmx.SelectedIndex} ");
             Console.AppendText($"Selected clientId {vm.CurrentClient.ListId} ");
-            Console.AppendText($"Client name fromorder: {vm.CurrentOrder.ClientName} ");
+            Console.AppendText($"Client name from order: {vm.CurrentOrder.ClientName} ");
             //ClientTb.Text = vm.CurrentClient.Name;
         }       
 
@@ -144,6 +146,10 @@ namespace OrderBook1
             vm.CurrentOrder.Num = OrdRTxb.Selection.Text.Trim();
             OrdRTxb.Selection.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.Aqua);
             Console.AppendText(vm.CurrentOrder.Num + " # ");
+            SearchInText srtext = new SearchInText();
+            string searchPattern = srtext.GetRegexExpression(vm.CurrentOrder.Num);
+            Console.Clear();
+            Console.AppendText($"New search pattern: {searchPattern}");
         }
 
         private void OrdDeadlineBtn_Click(object sender, RoutedEventArgs e)

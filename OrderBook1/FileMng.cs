@@ -106,9 +106,41 @@ namespace OrderBook1
                 //Open and load source text from file
                 //string fileContent = File.ReadAllText(openFileDialog.FileName);
                 string fileContent = ExtractTextFromPdf(openFileDialog.FileName);
+                //Show new lines
+                /*string[] lines = fileContent.Split("\n", StringSplitOptions.RemoveEmptyEntries);
+                foreach (string line in lines)
+                {
+                    result += line + "->" + Environment.NewLine;
+                }*/
+                result = fileContent;
+                string modifiedText = "";
+                for(int i = 0; i < result.Length; i++)
+                {
+                    if (Char.IsSeparator(result[i]))
+                    {
+                        modifiedText += " ";
+                    }
+                    else if (result[i]=='\r')
+                    {
+                        modifiedText += Environment.NewLine;
+                    }
+                    else if (result[i] == '\n')
+                    {
+                        modifiedText += Environment.NewLine;
+                    }
+                    else if (Char.IsControl(result[i]))
+                    {
+                        modifiedText += " ";
+                    }
+                    else
+                    { 
+                        modifiedText += result[i]; 
+                    }
+                }
+                result = modifiedText;
                 //Set the currentfilepath
                 SetCurrentFilePath(openFileDialog.FileName);
-                result = fileContent;
+                //result = fileContent;
             }
             return result;
         }
