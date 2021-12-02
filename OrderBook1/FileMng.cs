@@ -110,8 +110,9 @@ namespace OrderBook1
                 /*string[] lines = fileContent.Split("\n", StringSplitOptions.RemoveEmptyEntries);
                 foreach (string line in lines)
                 {
-                    result += line + "->" + Environment.NewLine;
-                }*/
+                    //result += line + Environment.NewLine;
+                }
+                result = fileContent;*/
                 result = fileContent;
                 string modifiedText = "";
                 for(int i = 0; i < result.Length; i++)
@@ -122,15 +123,15 @@ namespace OrderBook1
                     }
                     else if (result[i]=='\r')
                     {
-                        modifiedText += Environment.NewLine;
+                        modifiedText += "  "; //Environment.NewLine;
                     }
                     else if (result[i] == '\n')
                     {
-                        modifiedText += Environment.NewLine;
+                        modifiedText += " ";//Environment.NewLine;
                     }
                     else if (Char.IsControl(result[i]))
                     {
-                        modifiedText += " ";
+                        modifiedText += " == ";
                     }
                     else
                     { 

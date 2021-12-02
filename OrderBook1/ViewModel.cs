@@ -26,6 +26,11 @@ namespace OrderBook1
                 OnPropertyChanged("Orders");
             }
         }
+        //Order regex expressions to find order number in text
+        public List<OrderNumber> OrderNumberStrings = new List<OrderNumber>();
+        //Inits the list of ordnum patterns
+        public List<OrderNumber> ordNums { get; set; } = new List<OrderNumber>();
+        
 
         //Properties
         public ObservableCollection<Client> Clients { get; set; }

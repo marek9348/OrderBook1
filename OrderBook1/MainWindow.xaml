@@ -177,6 +177,7 @@
                                         <Button x:Name="AddOrdFileBtn" Height="30" Padding="5" Margin="3" Click="AddOrdFileBtn_Click" >Pridať súbor s obj.</Button>
                                         <Button x:Name="AddOrdPathBtn" Height="30" Padding="5" Margin="3" >Pridať cestu k obj.</Button>
                                         <Button x:Name="AddOrdBtn" Height="30" Padding="5" Margin="3" Click="AddOrdBtn_Click" >Uložiť obj.</Button>
+                                        <Button x:Name="SearchInOrder" Height="30" Padding="5" Margin="3" Click="SearchInOrder_Click"  >Hľadať</Button>
                                         
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"

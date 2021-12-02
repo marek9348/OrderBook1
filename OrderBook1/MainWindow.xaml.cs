@@ -44,11 +44,17 @@ namespace OrderBook1
             OrdersDtg.ItemsSource = vm.Orders;
             string dateTime = DateTime.Now.ToString();
             //OrdRTxb.AppendText(dateTime);
+            vm.ordNums.Add(new OrderNumber() { Id = 200, Pattern = @"\b[0-9][0-9][A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9]", Client = "" });
+            vm.ordNums.Add(new OrderNumber() { Id = 200, Pattern = @"\b[0-9][0-9][0-9][0-9][0-9][0-9]", Client = "" });
+            vm.ordNums.Add(new OrderNumber() { Id = 200, Pattern = @"\b[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]", Client = "" });
+            vm.ordNums.Add(new OrderNumber() { Id = 200, Pattern = @"\b[A-Z][A-Z][A-Z][0 - 9][0 - 9][0 - 9][0 - 9][0 - 9][0 - 9][0 - 9][0 - 9][\,,\., _,\-, \:][a-z][a-z][a-z][\,,\., _,\-, \:][a-z][a-z][a-z]", Client = "" });
+
+            
 
         }
-              
 
-        
+
+
 
         private void SetOrderTabItm_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -93,18 +99,7 @@ namespace OrderBook1
                     Clipboard.SetText(plainText);
                 }
 
-                SearchInText srchText = new SearchInText();
-                //Gets text from rtbx
-                //string rtbText = srchText.GetTextFromRtbx(OrdRTxb);
                 
-                //Searches for client in text
-                vm.CurrentClient = srchText.SearchClient(vm.Clients, Clipboard.GetText());
-                string regexExpression = srchText.GetRegexExpression("OBJ0073-ac_236");
-                Console.Clear();                
-                //Console.AppendText($"{ vm.CurrentClient.Name} id: {vm.CurrentClient.ListId}");
-                Console.AppendText($"Regex výraz: {regexExpression}");
-                ClientTb.Text = vm.CurrentClient.Name;
-                ClientsCmx.SelectedIndex = vm.CurrentClient.ListId;
             }
         }
 
@@ -148,6 +143,7 @@ namespace OrderBook1
             Console.AppendText(vm.CurrentOrder.Num + " # ");
             SearchInText srtext = new SearchInText();
             string searchPattern = srtext.GetRegexExpression(vm.CurrentOrder.Num);
+
             Console.Clear();
             Console.AppendText($"New search pattern: {searchPattern}");
         }
@@ -714,6 +710,29 @@ namespace OrderBook1
             //SaveEditedOrdBtn.Background = Brushes.Orange;
             apc.IsOrderEdited = true;
             
+        }
+
+        private void SearchInOrder_Click(object sender, RoutedEventArgs e)
+        {
+            SearchInText srtx = new SearchInText();
+            string source = srtx.GetTextFromRtbx(OrdRTxb);
+            (string, string, int) found = srtx.SearchOrderNumWithFlags(vm.ordNums, source);
+            //SearchInText srchText = new SearchInText();
+            //Gets text from rtbx
+            //string rtbText = srchText.GetTextFromRtbx(OrdRTxb);
+
+            //Searches for client in text
+            //vm.CurrentClient = srchText.SearchClient(vm.Clients, Clipboard.GetText());
+            vm.CurrentClient = srtx.SearchClient(vm.Clients, source);
+            //string regexExpression = srchText.GetRegexExpression("OBJ0073-ac_236");
+            Console.Clear();
+            //Console.AppendText($"{ vm.CurrentClient.Name} id: {vm.CurrentClient.ListId}");
+            //Console.AppendText($"Regex výraz: {regexExpression}");
+            ClientTb.Text = vm.CurrentClient.Name;
+            ClientsCmx.SelectedIndex = vm.CurrentClient.ListId;
+            
+            Console.AppendText($"Číslo objednávky: {found.Item1}, flag: {found.Item2}, index: {found.Item3}");
+            ProjNumTb.Text = found.Item1;
         }
     }
 }
