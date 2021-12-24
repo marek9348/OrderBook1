@@ -143,9 +143,15 @@ namespace OrderBook1
             Console.AppendText(vm.CurrentOrder.Num + " # ");
             SearchInText srtext = new SearchInText();
             string searchPattern = srtext.GetRegexExpression(vm.CurrentOrder.Num);
-
+            //Gets the previous text and then flag            
+            SearchInText inText = new SearchInText();
+            //string[] words = inText.GetPreviousText(OrdRTxb);
+            string flag = inText.GetFlag(OrdRTxb);
             Console.Clear();
-            Console.AppendText($"New search pattern: {searchPattern}");
+            //Print flag
+            Console.AppendText($"Flag: {flag}");
+            
+            
         }
 
         private void OrdDeadlineBtn_Click(object sender, RoutedEventArgs e)
@@ -733,6 +739,12 @@ namespace OrderBook1
             
             Console.AppendText($"Číslo objednávky: {found.Item1}, flag: {found.Item2}, index: {found.Item3}");
             ProjNumTb.Text = found.Item1;
+        }
+
+        private void OrdRTxb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            
+
         }
     }
 }

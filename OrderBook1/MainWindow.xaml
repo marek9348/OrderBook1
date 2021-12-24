@@ -181,7 +181,7 @@
                                         
                                     </StackPanel>
                                     <RichTextBox x:Name="OrdRTxb" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1"
-                                         AutoWordSelection="True" FontSize="20" PreviewKeyDown="OrdRTxb_PreviewKeyDown" >
+                                         AutoWordSelection="True" FontSize="20" PreviewKeyDown="OrdRTxb_PreviewKeyDown" MouseDoubleClick="OrdRTxb_MouseDoubleClick" >
                                         <RichTextBox.Resources>
                                             <Style TargetType="{x:Type Paragraph}">
                                                 <Setter Property="Margin" Value="20,1,1,1" />
@@ -284,7 +284,7 @@
                                 </StackPanel>
 
                             </Grid>
-                            <TextBox x:Name="Console" Width="Auto" Height="Auto"
+                            <TextBox x:Name="Console" Width="Auto" Height="Auto" VerticalAlignment="Stretch" Grid.Row="0"
                                      TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Grid.ColumnSpan="2" Margin="0,696,0,0" Grid.RowSpan="2">Log</TextBox>
 
 

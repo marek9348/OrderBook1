@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
@@ -74,6 +75,7 @@ namespace OrderBook1
                         {
 
                             foundIndex = m.Index; //Only temporally
+                            //Is word on the beginning of doc? Less flags
                             if (i > 4)
                             {
                                 flag = $"{sourceWords[i - 3]} {sourceWords[i - 2]} {sourceWords[i - 1]}";
@@ -155,6 +157,50 @@ namespace OrderBook1
                 }
             }
             return regexExp;
+        }
+        /// <summary>
+        /// Gets the text before the selection to get the flag
+        /// </summary>
+        /// <param name="rtb">Richtextbox</param>
+        /// <returns>Array of strings</returns>
+        public string[] GetPreviousText(RichTextBox rtb)
+        {
+            var docStart = rtb.Document.ContentStart;
+
+            var selectionStart = rtb.Selection.Start;
+            //var selectionEnd = OrdRTxb.Selection.End;
+
+            //these will give you the positions needed to apply highlighting
+            //var indexStart = docStart.GetOffsetToPosition(selectionStart);
+            //var indexEnd = docStart.GetOffsetToPosition(selectionEnd);
+
+            //these values will give you the absolute character positions relative to the very beginning of the text.
+            TextRange start = new TextRange(docStart, selectionStart);
+            //TextRange end = new TextRange(docStart, selectionEnd);
+            int indexStart_abs = start.Text.Length;
+            string plainText = start.Text;
+            char[] delimiters = { ' ', '\n', '\r' };
+            string[] words = plainText.Split(delimiters);
+
+            return words;
+        }
+
+        public string GetFlag(RichTextBox rtb)
+        {
+            string[] words = GetPreviousText(rtb);
+            string flag = "";
+            //MessageBox.Show(words.Length.ToString());
+            if (words.Length > 1)
+            {
+                flag = words[^3] + " " + words[^2];
+                
+            }
+            else if(words.Length == 1)
+            {
+                flag = words[^2];
+            }
+
+            return flag;
         }
     }
 

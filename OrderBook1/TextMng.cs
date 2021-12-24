@@ -44,5 +44,7 @@ namespace OrderBook1
 
             rtb.Selection.Text = "";
         }
+
+        
     }
 }
